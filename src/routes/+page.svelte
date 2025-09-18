@@ -364,7 +364,6 @@
                 </label>
                 <input
                   type="text"
-                  bind:value={playerNames[index]}
                   placeholder="Player {index + 1}"
                   class="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
                 />
