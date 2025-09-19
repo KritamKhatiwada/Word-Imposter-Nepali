@@ -17,12 +17,6 @@
     One Device
   </a>
 
-  <a href="/differentdevice"
-     class="flex flex-col items-center text-xs">
-    <span class="material-icons text-lg">important_devices</span>
-    Multi Device
-  </a>
-
   <a href="/online"
      class="flex flex-col items-center text-xs">
     <span class="material-icons text-lg">cloud</span>
@@ -37,10 +31,5 @@
   a:hover {
     transform: scale(1.1);
     color: green;
-  }
-  .selected {
-    transform: scale(1.2);
-    color: #2563eb;
-    font-weight: 600;
   }
 </style>

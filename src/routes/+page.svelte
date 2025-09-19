@@ -38,34 +38,34 @@
       shadowColor: 'shadow-blue-500/25',
       features: ['Pass & play', 'Instant setup', 'No internet needed']
     },
-    {
-      id: 'different-device',
-      title: 'Different Device Game',
-      description: 'Everyone uses their own device with room codes',
-      icon: WifiIcon,
-      route: '/differentdevice',
-      gradient: 'from-green-500 to-teal-600',
-      hoverGradient: 'from-green-600 to-teal-700',
-      bgAccent: 'bg-green-50',
-      borderAccent: 'border-green-200',
-      textAccent: 'text-green-600',
-      shadowColor: 'shadow-green-500/25',
-      features: ['Room codes', 'Own devices', 'Remote play']
-    },
+    // {
+    //   id: 'different-device',
+    //   title: 'Different Device Game',
+    //   description: 'Everyone uses their own device with room codes',
+    //   icon: WifiIcon,
+    //   route: '/differentdevice',
+    //   gradient: 'from-yellow-500 to-orange-600',
+    //   hoverGradient: 'from-yellow-600 to-orange-700',
+    //   bgAccent: 'bg-green-50',
+    //   borderAccent: 'border-yellow-200',
+    //   textAccent: 'text-yellow-600',
+    //   shadowColor: 'shadow-yellow-500/25',
+    //   features: ['Room codes', 'Own devices', 'Remote play']
+    // },
     {
       id: 'online-game',
       title: 'Online Game',
       description: 'Coming soon - play with friends anywhere!',
       icon: UsersIcon,
-      route: '#',
-      gradient: 'from-gray-400 to-gray-500',
-      hoverGradient: 'from-gray-400 to-gray-500',
+      route: '/online',
+      gradient: 'from-green-400 to-teal-600',
+      hoverGradient: 'from-green-400 to-teal-700',
       bgAccent: 'bg-gray-50',
-      borderAccent: 'border-gray-200',
-      textAccent: 'text-gray-500',
-      shadowColor: 'shadow-gray-500/25',
+      borderAccent: 'border-green-200',
+      textAccent: 'text-green-500',
+      shadowColor: 'shadow-green-500/25',
       features: ['Global play', 'Friend matching', 'Coming soon'],
-      disabled: true
+      // disabled: true
     }
   ];
 
@@ -91,7 +91,7 @@
       </div>
       
       <!-- Game Mode Selection -->
-      <div class="grid gap-8 md:grid-cols-3">
+      <div class="grid gap-8 md:grid-cols-2">
         {#each gameOptions as option}
           <div 
             class="group relative transform transition-all duration-300 hover:scale-105 {option.disabled ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}"
