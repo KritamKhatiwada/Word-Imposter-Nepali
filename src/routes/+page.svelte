@@ -1,6 +1,9 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import Nav from './components/Nav.svelte';
+  import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+
+injectSpeedInsights();
 
   
   const DeviceIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
