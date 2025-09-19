@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GoogleGenerativeAI } from '@google/generative-ai';
-
+  import Nav from '../components/Nav.svelte';
  
   interface Player {
     name: string;
@@ -247,7 +247,7 @@ let selectedTheme: string = "random";
   $: imposter = gameData?.players.find((p: Player) => p.role === 'imposter');
   $: dumbPlayer = gameData?.players.find((p: Player) => p.role === 'dumb');
 </script>
-
+<Nav/>
 
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
  
@@ -257,7 +257,7 @@ let selectedTheme: string = "random";
       <div class="max-w-md mx-auto">
        
         <!-- Header -->
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 mt-16">
           <h1 class="text-4xl md:text-5xl font-black text-gray-900 mb-3">
             Who's the Spy?
           </h1>
