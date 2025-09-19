@@ -3,29 +3,29 @@
 </script>
 
 <nav class="fixed top-4 left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-md 
-            rounded-2xl shadow-lg px-4 py-2 flex gap-6 items-center justify-center
+            rounded-2xl shadow-lg px-5 py-2 flex gap-4 items-center justify-center
             transition-all duration-300 z-50">
   <a href="/"
-     class="flex flex-col items-center text-sm">
-    <span class="material-icons text-2xl">home</span>
+     class="flex flex-col items-center text-xs">
+    <span class="material-icons text-lg">home</span>
     Home
   </a>
 
   <a href="/onedevice"
-     class="flex flex-col items-center text-sm">
-    <span class="material-icons text-2xl">devices</span>
+     class="flex flex-col items-center text-xs">
+    <span class="material-icons text-lg">devices</span>
     One Device
   </a>
 
   <a href="/differentdevice"
-     class="flex flex-col items-center text-sm">
-    <span class="material-icons text-2xl">important_devices</span>
+     class="flex flex-col items-center text-xs">
+    <span class="material-icons text-lg">important_devices</span>
     Multi Device
   </a>
 
   <a href="/online"
-     class="flex flex-col items-center text-sm">
-    <span class="material-icons text-2xl">cloud</span>
+     class="flex flex-col items-center text-xs">
+    <span class="material-icons text-lg">cloud</span>
     Online
   </a>
 </nav>

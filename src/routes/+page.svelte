@@ -81,7 +81,7 @@
     <div class="max-w-4xl mx-auto">
       
       <!-- Header -->
-      <div class="text-center mt-10 mb-16">
+      <div class="text-center mt-16 mb-16">
         <h1 class="text-5xl md:text-6xl font-black text-gray-900 mb-4">
           Who's the Spy?
         </h1>
