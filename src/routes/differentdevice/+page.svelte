@@ -1,5 +1,18 @@
 <script lang="ts">
   import { GoogleGenerativeAI } from '@google/generative-ai';
+  import { database } from '../firebase.js'; // Adjust path based on your structure
+  import { 
+    ref, 
+    set, 
+    get, 
+    push, 
+    onValue, 
+    off, 
+    update,
+    remove,
+    onDisconnect,
+    serverTimestamp
+  } from 'firebase/database';
   
   interface Player {
     id: string;
@@ -8,11 +21,12 @@
     word: string;
     isHost: boolean;
     hasRevealed: boolean;
+    lastSeen: number;
   }
   
   interface GameRoom {
     roomCode: string;
-    players: Player[];
+    players: { [playerId: string]: Player };
     gameStarted: boolean;
     gameComplete: boolean;
     civilianWord: string;
@@ -42,10 +56,10 @@
   let isGeneratingWords: boolean = false;
   let wordRevealed: boolean = false;
   let playerId: string = '';
+  let roomListener: any = null;
+  let connectionStatus: 'connected' | 'disconnected' | 'connecting' = 'connected';
   
-  // Simple in-memory storage simulation (in real app, this would be a backend service)
-  let gameRooms: { [key: string]: GameRoom } = {};
-  
+  // Icons (same as before)
   const PlayIcon = `<svg viewBox="0 0 24 24" fill="currentColor">
     <path d="M8 5v14l11-7z"/>
   </svg>`;
@@ -100,6 +114,185 @@
     return Math.random().toString(36).substring(2, 15);
   }
   
+  // Setup room listener
+  function setupRoomListener(code: string): void {
+    if (roomListener) {
+      off(roomListener);
+    }
+    
+    const roomRef = ref(database, `rooms/${code}`);
+    roomListener = onValue(roomRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        gameRoom = {
+          ...data,
+          roomCode: code
+        };
+        
+        // Update current player reference
+        if (playerId && gameRoom.players && gameRoom.players[playerId]) {
+          currentPlayer = gameRoom.players[playerId];
+        }
+        
+        // Update game state based on room state
+        if (gameRoom.gameComplete) {
+          gameState = 'reveal';
+        } else if (gameRoom.gameStarted) {
+          gameState = 'game';
+        } else {
+          gameState = 'lobby';
+        }
+      } else {
+        // Room doesn't exist
+        if (gameState !== 'home' && gameState !== 'create' && gameState !== 'join') {
+          alert('Room no longer exists!');
+          resetGame();
+        }
+      }
+    });
+  }
+  
+  // Update player presence
+  function updatePlayerPresence(): void {
+    if (!roomCode || !playerId) return;
+    
+    const playerRef = ref(database, `rooms/${roomCode}/players/${playerId}/lastSeen`);
+    set(playerRef, Date.now());
+    
+    // Set up disconnect handler
+    onDisconnect(playerRef).set(Date.now());
+  }
+  
+  // Create a new room
+  async function createRoom(): Promise<void> {
+    if (!playerName.trim()) {
+      alert('Please enter your name!');
+      return;
+    }
+    
+    connectionStatus = 'connecting';
+    
+    try {
+      roomCode = generateRoomCode();
+      playerId = generatePlayerId();
+      
+      currentPlayer = {
+        id: playerId,
+        name: playerName.trim(),
+        role: 'civilian',
+        word: '',
+        isHost: true,
+        hasRevealed: false,
+        lastSeen: Date.now()
+      };
+      
+      const newRoom: GameRoom = {
+        roomCode,
+        players: {
+          [playerId]: currentPlayer
+        },
+        gameStarted: false,
+        gameComplete: false,
+        civilianWord: '',
+        imposterWord: '',
+        hostId: playerId,
+        settings: {
+          language: selectedLanguage,
+          showRoles: showRoleInitially,
+          includeDumbRole: includeDumbRole
+        }
+      };
+      
+      // Save to Firebase
+      await set(ref(database, `rooms/${roomCode}`), newRoom);
+      
+      // Setup listeners
+      setupRoomListener(roomCode);
+      updatePlayerPresence();
+      
+      gameState = 'lobby';
+      connectionStatus = 'connected';
+    } catch (error) {
+      console.error('Error creating room:', error);
+      alert('Failed to create room. Please try again.');
+      connectionStatus = 'disconnected';
+    }
+  }
+  
+  // Join an existing room
+  async function joinRoom(): Promise<void> {
+    if (!playerName.trim()) {
+      alert('Please enter your name!');
+      return;
+    }
+    
+    if (!joinRoomCode.trim()) {
+      alert('Please enter a room code!');
+      return;
+    }
+    
+    connectionStatus = 'connecting';
+    
+    try {
+      const code = joinRoomCode.trim().toUpperCase();
+      const roomRef = ref(database, `rooms/${code}`);
+      const snapshot = await get(roomRef);
+      
+      if (!snapshot.exists()) {
+        alert('Room not found!');
+        connectionStatus = 'connected';
+        return;
+      }
+      
+      const room = snapshot.val();
+      
+      if (room.gameStarted) {
+        alert('Game has already started!');
+        connectionStatus = 'connected';
+        return;
+      }
+      
+      // Check if name already exists
+      const players = room.players || {};
+      const nameExists = Object.values(players).some((p: any) => 
+        p.name.toLowerCase() === playerName.trim().toLowerCase()
+      );
+      
+      if (nameExists) {
+        alert('A player with this name already exists in the room!');
+        connectionStatus = 'connected';
+        return;
+      }
+      
+      playerId = generatePlayerId();
+      roomCode = code;
+      
+      currentPlayer = {
+        id: playerId,
+        name: playerName.trim(),
+        role: 'civilian',
+        word: '',
+        isHost: false,
+        hasRevealed: false,
+        lastSeen: Date.now()
+      };
+      
+      // Add player to room
+      await set(ref(database, `rooms/${roomCode}/players/${playerId}`), currentPlayer);
+      
+      // Setup listeners
+      setupRoomListener(roomCode);
+      updatePlayerPresence();
+      
+      gameState = 'lobby';
+      connectionStatus = 'connected';
+    } catch (error) {
+      console.error('Error joining room:', error);
+      alert('Failed to join room. Please try again.');
+      connectionStatus = 'disconnected';
+    }
+  }
+  
   async function generateWithGemini(prompt: string): Promise<WordPair> {
     try {
       const genAI = new GoogleGenerativeAI(
@@ -147,166 +340,92 @@
     }
   }
   
-  // Create a new room
-  function createRoom(): void {
-    if (!playerName.trim()) {
-      alert('Please enter your name!');
-      return;
-    }
-    
-    roomCode = generateRoomCode();
-    playerId = generatePlayerId();
-    
-    currentPlayer = {
-      id: playerId,
-      name: playerName.trim(),
-      role: 'civilian',
-      word: '',
-      isHost: true,
-      hasRevealed: false
-    };
-    
-    gameRoom = {
-      roomCode,
-      players: [currentPlayer],
-      gameStarted: false,
-      gameComplete: false,
-      civilianWord: '',
-      imposterWord: '',
-      hostId: playerId,
-      settings: {
-        language: selectedLanguage,
-        showRoles: showRoleInitially,
-        includeDumbRole: includeDumbRole
-      }
-    };
-    
-    gameRooms[roomCode] = gameRoom;
-    gameState = 'lobby';
-  }
-  
-  // Join an existing room
-  function joinRoom(): void {
-    if (!playerName.trim()) {
-      alert('Please enter your name!');
-      return;
-    }
-    
-    if (!joinRoomCode.trim()) {
-      alert('Please enter a room code!');
-      return;
-    }
-    
-    const code = joinRoomCode.trim().toUpperCase();
-    const room = gameRooms[code];
-    
-    if (!room) {
-      alert('Room not found!');
-      return;
-    }
-    
-    if (room.gameStarted) {
-      alert('Game has already started!');
-      return;
-    }
-    
-    if (room.players.some(p => p.name.toLowerCase() === playerName.trim().toLowerCase())) {
-      alert('A player with this name already exists in the room!');
-      return;
-    }
-    
-    playerId = generatePlayerId();
-    roomCode = code;
-    
-    currentPlayer = {
-      id: playerId,
-      name: playerName.trim(),
-      role: 'civilian',
-      word: '',
-      isHost: false,
-      hasRevealed: false
-    };
-    
-    room.players.push(currentPlayer);
-    gameRoom = room;
-    gameState = 'lobby';
-  }
-  
   // Start the game (host only)
   async function startGame(): Promise<void> {
-    if (!gameRoom || !currentPlayer?.isHost) return;
+    if (!gameRoom || !currentPlayer?.isHost || !roomCode) return;
     
-    if (gameRoom.players.length < 3) {
+    const players = Object.values(gameRoom.players);
+    if (players.length < 3) {
       alert('At least 3 players are required!');
       return;
     }
     
     isGeneratingWords = true;
     
-    const prompt = gameRoom.settings.language === 'nepali'
-      ? `Generate two similar meaning but different Nepali words for a "Who is the Imposter" game.
-    One word for civilians and one slightly different word for the imposter.
-    The words should be related but distinct enough to create confusion.
-   
-    Respond in this exact JSON format:
-    {
-      "civilian": "nepali_word_here",
-      "imposter": "similar_but_different_nepali_word_here"
-    }
-   
-    Example categories: animals, fruits, objects, places, food, etc.
-    Make sure both words are simple and commonly known Nepali words.`
-      : `Generate two similar meaning but different English words for a "Who is the Imposter" game.
-    One word for civilians and one slightly different word for the imposter.
-    The words should be related but distinct enough to create confusion.
-   
-    Respond in this exact JSON format:
-    {
-      "civilian": "english_word_here",
-      "imposter": "similar_but_different_english_word_here"
-    }
-   
-    Example categories: animals, fruits, objects, places, food, etc.
-    Make sure both words are simple and commonly known English words.`;
-   
-    selectedLanguage = gameRoom.settings.language;
-    const wordPair = await generateWithGemini(prompt);
-    
-    // Assign roles
-    const playerCount = gameRoom.players.length;
-    const imposterIndex = Math.floor(Math.random() * playerCount);
-    
-    let dumbIndex = -1;
-    if (gameRoom.settings.includeDumbRole) {
-      const availableIndices = Array.from({length: playerCount}, (_, i) => i)
-        .filter(i => i !== imposterIndex);
-      if (availableIndices.length > 0) {
-        dumbIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    try {
+      const prompt = gameRoom.settings.language === 'nepali'
+        ? `Generate two similar meaning but different Nepali words for a "Who is the Imposter" game.
+      One word for civilians and one slightly different word for the imposter.
+      The words should be related but distinct enough to create confusion.
+     
+      Respond in this exact JSON format:
+      {
+        "civilian": "nepali_word_here",
+        "imposter": "similar_but_different_nepali_word_here"
       }
-    }
-    
-    // Update all players with their roles and words
-    gameRoom.players.forEach((player, index) => {
-      if (index === imposterIndex) {
-        player.role = 'imposter';
-        player.word = wordPair.imposter;
-      } else if (index === dumbIndex) {
-        player.role = 'dumb';
-        player.word = '???';
-      } else {
-        player.role = 'civilian';
-        player.word = wordPair.civilian;
+     
+      Example categories: animals, fruits, objects, places, food, etc.
+      Make sure both words are simple and commonly known Nepali words.`
+        : `Generate two similar meaning but different English words for a "Who is the Imposter" game.
+      One word for civilians and one slightly different word for the imposter.
+      The words should be related but distinct enough to create confusion.
+     
+      Respond in this exact JSON format:
+      {
+        "civilian": "english_word_here",
+        "imposter": "similar_but_different_english_word_here"
       }
-      player.hasRevealed = false;
-    });
-    
-    gameRoom.civilianWord = wordPair.civilian;
-    gameRoom.imposterWord = wordPair.imposter;
-    gameRoom.gameStarted = true;
-    
-    gameState = 'game';
-    wordRevealed = false;
-    isGeneratingWords = false;
+     
+      Example categories: animals, fruits, objects, places, food, etc.
+      Make sure both words are simple and commonly known English words.`;
+     
+      selectedLanguage = gameRoom.settings.language;
+      const wordPair = await generateWithGemini(prompt);
+      
+      // Assign roles
+      const playerIds = Object.keys(gameRoom.players);
+      const playerCount = playerIds.length;
+      const imposterIndex = Math.floor(Math.random() * playerCount);
+      
+      let dumbIndex = -1;
+      if (gameRoom.settings.includeDumbRole) {
+        const availableIndices = Array.from({length: playerCount}, (_, i) => i)
+          .filter(i => i !== imposterIndex);
+        if (availableIndices.length > 0) {
+          dumbIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        }
+      }
+      
+      // Update all players with their roles and words
+      const updates: { [key: string]: any } = {};
+      
+      playerIds.forEach((playerId, index) => {
+        if (index === imposterIndex) {
+          updates[`players/${playerId}/role`] = 'imposter';
+          updates[`players/${playerId}/word`] = wordPair.imposter;
+        } else if (index === dumbIndex) {
+          updates[`players/${playerId}/role`] = 'dumb';
+          updates[`players/${playerId}/word`] = '???';
+        } else {
+          updates[`players/${playerId}/role`] = 'civilian';
+          updates[`players/${playerId}/word`] = wordPair.civilian;
+        }
+        updates[`players/${playerId}/hasRevealed`] = false;
+      });
+      
+      updates['civilianWord'] = wordPair.civilian;
+      updates['imposterWord'] = wordPair.imposter;
+      updates['gameStarted'] = true;
+      
+      await update(ref(database, `rooms/${roomCode}`), updates);
+      
+      wordRevealed = false;
+      isGeneratingWords = false;
+    } catch (error) {
+      console.error('Error starting game:', error);
+      alert('Failed to start game. Please try again.');
+      isGeneratingWords = false;
+    }
   }
   
   function copyRoomCode(): void {
@@ -315,20 +434,38 @@
     });
   }
   
-  function revealWord(): void {
-    wordRevealed = true;
-    if (currentPlayer) {
-      currentPlayer.hasRevealed = true;
+  async function revealWord(): Promise<void> {
+    if (!currentPlayer || !roomCode) return;
+    
+    try {
+      wordRevealed = true;
+      await update(ref(database, `rooms/${roomCode}/players/${playerId}`), {
+        hasRevealed: true
+      });
+    } catch (error) {
+      console.error('Error revealing word:', error);
     }
   }
   
-  function showResults(): void {
-    if (!gameRoom) return;
-    gameRoom.gameComplete = true;
-    gameState = 'reveal';
+  async function showResults(): Promise<void> {
+    if (!gameRoom || !roomCode) return;
+    
+    try {
+      await update(ref(database, `rooms/${roomCode}`), {
+        gameComplete: true
+      });
+    } catch (error) {
+      console.error('Error showing results:', error);
+    }
   }
   
   function resetGame(): void {
+    // Clean up listeners
+    if (roomListener) {
+      off(roomListener);
+      roomListener = null;
+    }
+    
     gameState = 'home';
     gameRoom = null;
     currentPlayer = null;
@@ -340,22 +477,34 @@
     selectedLanguage = 'english';
     showRoleInitially = false;
     includeDumbRole = false;
+    connectionStatus = 'connected';
   }
   
-  function startNewGame(): void {
-    if (!gameRoom || !currentPlayer?.isHost) return;
+  async function startNewGame(): Promise<void> {
+    if (!gameRoom || !currentPlayer?.isHost || !roomCode) return;
     
-    // Reset game state but keep players
-    gameRoom.gameStarted = false;
-    gameRoom.gameComplete = false;
-    gameRoom.players.forEach(player => {
-      player.role = 'civilian';
-      player.word = '';
-      player.hasRevealed = false;
-    });
-    
-    gameState = 'lobby';
-    wordRevealed = false;
+    try {
+      // Reset game state but keep players
+      const updates: { [key: string]: any } = {};
+      
+      Object.keys(gameRoom.players).forEach(playerId => {
+        updates[`players/${playerId}/role`] = 'civilian';
+        updates[`players/${playerId}/word`] = '';
+        updates[`players/${playerId}/hasRevealed`] = false;
+      });
+      
+      updates['gameStarted'] = false;
+      updates['gameComplete'] = false;
+      updates['civilianWord'] = '';
+      updates['imposterWord'] = '';
+      
+      await update(ref(database, `rooms/${roomCode}`), updates);
+      
+      wordRevealed = false;
+    } catch (error) {
+      console.error('Error starting new game:', error);
+      alert('Failed to start new game. Please try again.');
+    }
   }
   
   function goToCreateRoom(): void {
@@ -370,21 +519,44 @@
     gameState = 'home';
   }
   
-  // Get current player's data
-  $: {
-    if (gameRoom && playerId) {
-      currentPlayer = gameRoom.players.find(p => p.id === playerId) || null;
-    }
+  // Keep player presence updated
+  let presenceInterval: any;
+  $: if (roomCode && playerId) {
+    if (presenceInterval) clearInterval(presenceInterval);
+    presenceInterval = setInterval(updatePlayerPresence, 30000); // Update every 30 seconds
   }
   
   // Get game statistics
-  $: playersRevealed = gameRoom?.players.filter(p => p.hasRevealed).length || 0;
-  $: totalPlayers = gameRoom?.players.length || 0;
-  $: imposterPlayer = gameRoom?.players.find(p => p.role === 'imposter');
-  $: dumbPlayer = gameRoom?.players.find(p => p.role === 'dumb');
+  $: playersRevealed = gameRoom ? Object.values(gameRoom.players).filter(p => p.hasRevealed).length : 0;
+  $: totalPlayers = gameRoom ? Object.keys(gameRoom.players).length : 0;
+  $: imposterPlayer = gameRoom ? Object.values(gameRoom.players).find(p => p.role === 'imposter') : null;
+  $: dumbPlayer = gameRoom ? Object.values(gameRoom.players).find(p => p.role === 'dumb') : null;
+  
+  // Cleanup on component destroy
+  import { onDestroy } from 'svelte';
+  onDestroy(() => {
+    if (roomListener) {
+      off(roomListener);
+    }
+    if (presenceInterval) {
+      clearInterval(presenceInterval);
+    }
+  });
 </script>
 
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+
+  <!-- Connection Status -->
+  {#if connectionStatus !== 'connected'}
+    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+      <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
+        <div class="animate-spin w-4 h-4">{@html RefreshIcon}</div>
+        <span class="text-sm font-medium">
+          {connectionStatus === 'connecting' ? 'Connecting...' : 'Reconnecting...'}
+        </span>
+      </div>
+    </div>
+  {/if}
 
   <!-- Home Screen -->
   {#if gameState === 'home'}
@@ -399,6 +571,100 @@
           <p class="text-gray-600">Everyone plays on their own device!</p>
         </div>
         
+        <!-- Game Options -->
+        <div class="space-y-4">
+          
+          <!-- Create Room Button -->
+          <button
+            on:click={goToCreateRoom}
+            class="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-black py-8 px-8 rounded-2xl transition-all duration-200 shadow-xl hover:shadow-green-500/25 flex items-center justify-center space-x-4 hover:scale-105 transform hover:cursor-pointer"
+          >
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+              <div class="w-10 h-10 text-white">{@html PlusIcon}</div>
+            </div>
+            <div class="text-left">
+              <div class="text-2xl font-black">CREATE ROOM</div>
+              <div class="text-green-100 text-sm font-medium">Start a new game and invite friends</div>
+            </div>
+          </button>
+          
+          <!-- Join Room Button -->
+          <button
+            on:click={goToJoinRoom}
+            class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-black py-8 px-8 rounded-2xl transition-all duration-200 shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-4 hover:scale-105 transform hover:cursor-pointer"
+          >
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+              <div class="w-10 h-10 text-white">{@html LoginIcon}</div>
+            </div>
+            <div class="text-left">
+              <div class="text-2xl font-black">JOIN ROOM</div>
+              <div class="text-blue-100 text-sm font-medium">Enter a room code to join a game</div>
+            </div>
+          </button>
+        </div>
+        
+        <!-- Back Button -->
+        <div class="mt-8">
+          <a 
+            href="/"
+            class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-4 rounded-xl transition-all duration-200 hover:scale-105 block text-center hover:cursor-pointer"
+          >
+            ← Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Create Room Screen -->
+  {#if gameState === 'create'}
+    <div class="container mx-auto px-4 py-8 md:py-16">
+      <div class="max-w-md mx-auto">
+        
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+          <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
+              <div class="w-8 h-8 text-white">{@html PlusIcon}</div>
+            </div>
+            <h2 class="text-2xl font-black text-gray-900 mb-2">Create Room</h2>
+            <p class="text-gray-600 text-sm">Start a new game and invite friends</p>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">Your Name</label>
+              <input
+                type="text"
+                bind:value={playerName}
+                placeholder="Enter your name..."
+                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
+              />
+            </div>
+            
+            <!-- Language Selection -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">🌍 Language</label>
+              <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
+                <button
+                  type="button"
+                  on:click={() => selectedLanguage = 'english'}
+                  class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer
+                    {selectedLanguage === 'english' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  on:click={() => selectedLanguage = 'nepali'}
+                  class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer
+                    {selectedLanguage === 'nepali' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+                >
+                  नेपाली
+                </button>
+              </div>
+            </div>
+            
+
         <!-- Game Options -->
         <div class="space-y-4">
           

@@ -26,6 +26,9 @@
   let wordRevealed: boolean = false;
   let isGeneratingWords: boolean = false;
   let selectedLanguage: 'nepali' | 'english' = 'english';
+let selectedTheme: string = "random";
+
+
   let includeDumbRole: boolean = false;
   
   const PlayIcon = `<svg viewBox="0 0 24 24" fill="currentColor">
@@ -127,32 +130,35 @@
     savedPlayerNames = [...playerNames];
     
     isGeneratingWords = true;
-   
+
+
     const prompt = selectedLanguage === 'nepali'
-      ? `Generate two similar meaning but different Nepali words for a "Who is the Imposter" game.
-    One word for civilians and one slightly different word for the imposter.
-    The words should be related but distinct enough to create confusion.
-   
-    Respond in this exact JSON format:
-    {
-      "civilian": "nepali_word_here",
-      "imposter": "similar_but_different_nepali_word_here"
-    }
-   
-    Example categories: animals, fruits, objects, places, food, etc.
-    Make sure both words are simple and commonly known Nepali words.`
-      : `Generate two similar meaning but different English words for a "Who is the Imposter" game.
-    One word for civilians and one slightly different word for the imposter.
-    The words should be related but distinct enough to create confusion.
-   
-    Respond in this exact JSON format:
-    {
-      "civilian": "english_word_here",
-      "imposter": "similar_but_different_english_word_here"
-    }
-   
-    Example categories: animals, fruits, objects, places, food, etc.
-    Make sure both words are simple and commonly known English words.`;
+      ?`Generate two Nepali words for a "Who is the Imposter" game.
+- Both words must belong to the theme: "${selectedTheme}".
+- For example, if the theme is "football-player-names", generate two real football players' names that are similar in club/country/name or could be confused.
+- The first word is for civilians (common, recognizable word).
+- The second word is for the imposter (slightly different but related word, similar concept or easy to confuse).
+- Avoid repeating the same words from previous rounds.
+- Make sure the words are familiar but not too obvious.
+- Respond strictly in JSON format as below:
+
+{
+  "civilian": "nepali_word_here",
+  "imposter": "similar_but_different_nepali_word_here"
+}`
+       : `Generate two English words for a "Who is the Imposter" game.
+- Both words must belong to the theme: "${selectedTheme}".
+- For example, if the theme is "football-player-names", generate two real football players' names that are similar in clubs/country/name or could be confused.
+- The first word is for civilians (common, recognizable word).
+- The second word is for the imposter (slightly different but related word, similar concept or easy to confuse).
+- Avoid repeating the same words from previous rounds.
+- Make sure the words are familiar but not too obvious.
+- Respond strictly in JSON format as below:
+
+{
+  "civilian": "english_word_here",
+  "imposter": "similar_but_different_english_word_here"
+}`;
    
     const wordPair = await generateWithGemini(prompt);
    
@@ -256,96 +262,109 @@
           <p class="text-gray-600">Find the imposter in this fun party game!</p>
         </div>
         
-        <!-- Game Settings -->
-        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-6">
-         
-          <!-- Language Selection -->
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-3">🌍 Language</label>
-            <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
-              <button
-                type="button"
-                on:click={() => selectedLanguage = 'english'}
-                class="flex hover:cursor-pointer items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:scale-105
-                  {selectedLanguage === 'english' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
-              >
-                English
-              </button>
-              <button
-                type="button"
-                on:click={() => selectedLanguage = 'nepali'}
-                class="flex items-center hover:cursor-pointer justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:scale-105
-                  {selectedLanguage === 'nepali' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
-              >
-                नेपाली
-              </button>
-            </div>
-          </div>
-          
-          <!-- Number of Players -->
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-3">👥 Players</label>
-            <input
-              type="number"
-              min="3"
-              max="12"
-              bind:value={numPlayers}
-              class="w-full p-4 text-center text-2xl font-black border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
-            />
-          </div>
-          
-          <!-- Game Options -->
-          <div class="space-y-3">
-            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-              <div>
-                <div class="font-bold text-gray-800 text-sm">🎭 Show roles</div>
-                <div class="text-xs text-gray-500">Reveal player roles immediately</div>
-              </div>
-              <button
-                type="button"
-                on:click={() => showRoleInitially = !showRoleInitially}
-                class="relative hover:cursor-pointer w-14 h-8 rounded-full transition-all duration-300 focus:outline-none hover:scale-110
-                  {showRoleInitially ? 'bg-red-500 shadow-lg' : 'bg-gray-300'}"
-              >
-                <div class="absolute w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 top-1 flex items-center justify-center
-                  {showRoleInitially ? 'translate-x-7' : 'translate-x-1'}">
-                  {#if showRoleInitially}
-                    <div class="w-3 h-3 text-red-500">{@html StarIcon}</div>
-                  {/if}
-                </div>
-              </button>
-            </div>
-            
-            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-              <div>
-                <div class="font-bold text-gray-800 text-sm">🤔 Add Mystery Player</div>
-                <div class="text-xs text-gray-500">Someone gets no word at all</div>
-              </div>
-              <button
-                type="button"
-                on:click={() => includeDumbRole = !includeDumbRole}
-                class="relative w-14 hover:cursor-pointer h-8 rounded-full transition-all duration-300 focus:outline-none hover:scale-110
-                  {includeDumbRole ? 'bg-green-500 shadow-lg' : 'bg-gray-300'}"
-              >
-                <div class="absolute w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 top-1 flex items-center justify-center
-                  {includeDumbRole ? 'translate-x-7' : 'translate-x-1'}">
-                  {#if includeDumbRole}
-                    <div class="text-green-500 text-xs font-bold">?</div>
-                  {/if}
-                </div>
-              </button>
-            </div>
-          </div>
-          
-          <!-- Start Button -->
-          <button
-            on:click={() => gameState = 'setup'}
-            class="w-full bg-red-500 hover:cursor-pointer text-white font-black py-5 px-8 rounded-xl hover:bg-red-600 transition-all duration-300 shadow-xl hover:shadow-red-500/25 flex items-center justify-center space-x-3 hover:scale-105 transform"
-          >
-            <div class="w-6 h-6">{@html PlayIcon}</div>
-            <span class="text-lg">LET'S PLAY!</span>
-          </button>
+<!-- Game Settings -->
+<div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-6">
+  
+  <!-- Language Selection -->
+  <div>
+    <label class="block text-sm font-bold text-gray-700 mb-3">🌍 Language</label>
+    <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
+      <button
+        type="button"
+        on:click={() => selectedLanguage = 'english'}
+        class="flex hover:cursor-pointer items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:scale-105
+          {selectedLanguage === 'english' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+      >
+        English
+      </button>
+      <button
+        type="button"
+        on:click={() => selectedLanguage = 'nepali'}
+        class="flex items-center hover:cursor-pointer justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:scale-105
+          {selectedLanguage === 'nepali' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+      >
+        नेपाली
+      </button>
+    </div>
+  </div>
+
+<!-- Theme Selection -->
+<div>
+  <label class="block text-sm font-bold text-gray-700 mb-3">🎨 Theme</label>
+  <input
+    type="text"
+    placeholder="Enter a theme (e.g. Animals, Food, Gadgets)"
+    bind:value={selectedTheme}
+    class="w-full p-4 text-center text-base font-semibold border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
+  />
+</div>
+
+  
+  <!-- Number of Players -->
+  <div>
+    <label class="block text-sm font-bold text-gray-700 mb-3">👥 Players</label>
+    <input
+      type="number"
+      min="3"
+      max="12"
+      bind:value={numPlayers}
+      class="w-full p-4 text-center text-2xl font-black border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
+    />
+  </div>
+
+  <!-- Game Options -->
+  <div class="space-y-3">
+    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+      <div>
+        <div class="font-bold text-gray-800 text-sm">🎭 Show roles</div>
+        <div class="text-xs text-gray-500">Reveal player roles immediately</div>
+      </div>
+      <button
+        type="button"
+        on:click={() => showRoleInitially = !showRoleInitially}
+        class="relative hover:cursor-pointer w-14 h-8 rounded-full transition-all duration-300 focus:outline-none hover:scale-110
+          {showRoleInitially ? 'bg-red-500 shadow-lg' : 'bg-gray-300'}"
+      >
+        <div class="absolute w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 top-1 flex items-center justify-center
+          {showRoleInitially ? 'translate-x-7' : 'translate-x-1'}">
+          {#if showRoleInitially}
+            <div class="w-3 h-3 text-red-500">{@html StarIcon}</div>
+          {/if}
         </div>
+      </button>
+    </div>
+    
+    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+      <div>
+        <div class="font-bold text-gray-800 text-sm">🤔 Add Mystery Player</div>
+        <div class="text-xs text-gray-500">Someone gets no word at all</div>
+      </div>
+      <button
+        type="button"
+        on:click={() => includeDumbRole = !includeDumbRole}
+        class="relative w-14 hover:cursor-pointer h-8 rounded-full transition-all duration-300 focus:outline-none hover:scale-110
+          {includeDumbRole ? 'bg-green-500 shadow-lg' : 'bg-gray-300'}"
+      >
+        <div class="absolute w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 top-1 flex items-center justify-center
+          {includeDumbRole ? 'translate-x-7' : 'translate-x-1'}">
+          {#if includeDumbRole}
+            <div class="text-green-500 text-xs font-bold">?</div>
+          {/if}
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Start Button -->
+  <button
+    on:click={() => gameState = 'setup'}
+    class="w-full bg-red-500 hover:cursor-pointer text-white font-black py-5 px-8 rounded-xl hover:bg-red-600 transition-all duration-300 shadow-xl hover:shadow-red-500/25 flex items-center justify-center space-x-3 hover:scale-105 transform"
+  >
+    <div class="w-6 h-6">{@html PlayIcon}</div>
+    <span class="text-lg">LET'S PLAY!</span>
+  </button>
+</div>
+
       </div>
     </div>
   {/if}
@@ -521,7 +540,7 @@
               class="w-full bg-red-500 hover:cursor-pointer text-white font-black py-5 px-6 rounded-xl hover:bg-red-600 transition-all duration-200 shadow-xl hover:shadow-red-500/25 flex items-center justify-center space-x-3 hover:scale-105 transform"
             >
               <div class="w-6 h-6">{@html SearchIcon}</div>
-              <span class="text-lg">🔍 REVEAL RESULTS</span>
+              <span class="text-lg"> REVEAL RESULTS</span>
             </button>
             
             <!-- Restart with Same Players Button -->
