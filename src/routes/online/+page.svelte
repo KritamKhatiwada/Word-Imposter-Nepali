@@ -949,7 +949,7 @@
             <div class="max-w-md mx-auto">
                 
                 <!-- Header -->
-                <div class="text-center mt-16 mb-12">
+                <div class="text-center mt-16g mb-12">
                     <h1 class="text-4xl md:text-5xl font-black text-gray-900 mb-3">
                         Multi-Device Spy
                     </h1>
