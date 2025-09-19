@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Nav from '../components/Nav.svelte';
     import { GoogleGenerativeAI } from '@google/generative-ai';
     import { database } from '../../firebase'; // Adjust path based on your structure
     import { 
@@ -927,7 +928,7 @@
         }
     });
 </script>
-
+<Nav/>
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
 
     <!-- Connection Status -->
@@ -944,11 +945,11 @@
 
     <!-- Home Screen -->
     {#if gameState === 'home'}
-        <div class="container mx-auto px-4 py-8 md:py-16">
+        <div class="container mx-auto px-4  py-8 md:py-16">
             <div class="max-w-md mx-auto">
                 
                 <!-- Header -->
-                <div class="text-center mb-12">
+                <div class="text-center mt-16 mb-12">
                     <h1 class="text-4xl md:text-5xl font-black text-gray-900 mb-3">
                         Multi-Device Spy
                     </h1>
