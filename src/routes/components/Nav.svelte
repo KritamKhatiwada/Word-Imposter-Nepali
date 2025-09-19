@@ -1,0 +1,46 @@
+<script>
+//   import { page } from '$app/stores';
+</script>
+
+<nav class="fixed top-4 left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-md 
+            rounded-2xl shadow-lg px-4 py-2 flex gap-6 items-center justify-center
+            transition-all duration-300 z-50">
+  <a href="/"
+     class="flex flex-col items-center text-sm">
+    <span class="material-icons text-2xl">home</span>
+    Home
+  </a>
+
+  <a href="/onedevice"
+     class="flex flex-col items-center text-sm">
+    <span class="material-icons text-2xl">devices</span>
+    One Device
+  </a>
+
+  <a href="/differentdevice"
+     class="flex flex-col items-center text-sm">
+    <span class="material-icons text-2xl">important_devices</span>
+    Multi Device
+  </a>
+
+  <a href="/online"
+     class="flex flex-col items-center text-sm">
+    <span class="material-icons text-2xl">cloud</span>
+    Online
+  </a>
+</nav>
+
+<style>
+  a {
+    transition: transform 0.2s, color 0.2s;
+  }
+  a:hover {
+    transform: scale(1.1);
+    color: green;
+  }
+  .selected {
+    transform: scale(1.2);
+    color: #2563eb;
+    font-weight: 600;
+  }
+</style>

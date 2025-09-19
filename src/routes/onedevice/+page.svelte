@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { GoogleGenerativeAI } from '@google/generative-ai';
+
  
   interface Player {
     name: string;
@@ -246,6 +247,7 @@ let selectedTheme: string = "random";
   $: imposter = gameData?.players.find((p: Player) => p.role === 'imposter');
   $: dumbPlayer = gameData?.players.find((p: Player) => p.role === 'dumb');
 </script>
+
 
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
  

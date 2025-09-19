@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import Nav from './components/Nav.svelte';
 
   
   const DeviceIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -73,13 +74,14 @@
     goto(option.route);
   }
 </script>
+<Nav/>
 
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
   <div class="container mx-auto px-4 py-8 md:py-16">
     <div class="max-w-4xl mx-auto">
       
       <!-- Header -->
-      <div class="text-center mb-16">
+      <div class="text-center mt-10 mb-16">
         <h1 class="text-5xl md:text-6xl font-black text-gray-900 mb-4">
           Who's the Spy?
         </h1>
