@@ -79,16 +79,16 @@ injectSpeedInsights();
 </script>
 <Nav/>
 
-<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+<div class="min-h-screen  bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
   <div class="container mx-auto px-4 py-8 md:py-16">
     <div class="max-w-4xl mx-auto">
       
       <!-- Header -->
       <div class="text-center mt-16 mb-16">
-        <h1 class="text-5xl md:text-6xl font-black text-gray-900 mb-4">
+        <h1 class="text-5xl md:text-6xl font-black text-zinc-50 mb-4">
           Who's the Spy?
         </h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+        <p class="text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
           The ultimate party game of deception and deduction. Choose how you want to play!
         </p>
       </div>

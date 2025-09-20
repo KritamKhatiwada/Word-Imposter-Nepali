@@ -929,7 +929,7 @@
     });
 </script>
 <Nav/>
-<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+<div class="min-h-screen  bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
 
     <!-- Connection Status -->
     {#if connectionStatus !== 'connected'}
@@ -949,15 +949,10 @@
             <div class="max-w-md mx-auto">
                 
                 <!-- Header -->
-                <div class="text-center mt-16g mb-12">
-                    <h1 class="text-4xl md:text-5xl font-black text-gray-900 mb-3">
-                        Multi-Device Spy
-                    </h1>
-                    <p class="text-gray-600">Everyone plays on their own device!</p>
-                </div>
+              
                 
                 <!-- Game Options -->
-                <div class="space-y-4">
+                <div class="space-y-4 mt-32">
                 
                     <!-- Create Room Button -->
                     <button
