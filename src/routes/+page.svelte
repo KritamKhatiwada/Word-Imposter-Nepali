@@ -39,7 +39,6 @@ injectSpeedInsights();
       borderAccent: 'border-blue-200',
       textAccent: 'text-blue-600',
       shadowColor: 'shadow-blue-500/25',
-      features: ['Pass & play', 'Instant setup', 'No internet needed']
     },
     // {
     //   id: 'different-device',
@@ -67,7 +66,6 @@ injectSpeedInsights();
       borderAccent: 'border-green-200',
       textAccent: 'text-green-500',
       shadowColor: 'shadow-green-500/25',
-      features: ['Global play', 'Friend matching', 'Coming soon'],
       // disabled: true
     }
   ];
@@ -104,10 +102,10 @@ injectSpeedInsights();
             tabindex="0"
           >
             <!-- Card -->
-            <div class="bg-white rounded-2xl border-2 {option.borderAccent} shadow-xl group-hover:shadow-2xl group-hover:{option.shadowColor} transition-all duration-300 p-8 h-full flex flex-col">
+            <div class="bg-backdrop-blur-xl bg-slate-100 border-white/2 rounded-2xl border-2 {option.borderAccent} shadow-xl group-hover:shadow-2xl group-hover:{option.shadowColor} transition-all duration-300 p-8 h-full flex flex-col">
               
               <!-- Icon & Title -->
-              <div class="text-center mb-6">
+              <div class="text-center ">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br {option.gradient} group-hover:{option.hoverGradient} rounded-xl mb-4 shadow-lg transition-all duration-300">
                   <div class="w-8 h-8 text-white">{@html option.icon}</div>
                 </div>

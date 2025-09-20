@@ -156,21 +156,49 @@
   }
   
   async function generateWithGemini(prompt: string): Promise<WordPair> {
+try {
+  const genAI = new GoogleGenerativeAI(
+    import.meta.env.VITE_REACT_APP_GEMINI_API_KEY || 'your-api-key-here'
+  );
+
+  // List of models in priority order
+  const models = [
+    "gemini-2.0-flash-exp",
+    "gemini-2.0-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite"
+  ];
+
+  let text = null;
+
+  for (const modelName of models) {
     try {
-      const genAI = new GoogleGenerativeAI(
-        import.meta.env.VITE_REACT_APP_GEMINI_API_KEY || 'your-api-key-here'
-      );
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+      console.log(`🔄 Trying model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const text = await response.text();
-      return parseJSON(text);
-    } catch (error) {
-      console.error('Error generating with Gemini:', error);
-      return selectedLanguage === 'nepali'
-        ? { civilian: 'कुकुर', imposter: 'बिरालो' }
-        : { civilian: 'Dog', imposter: 'Cat' };
+      text = await response.text();
+      if (text) {
+        console.log(`✅ Success with model: ${modelName}`);
+        break;
+      }
+    } catch (err) {
+      console.warn(`❌ Failed with ${modelName}:`, err.message);
+      // Try next model
     }
+  }
+
+  if (!text) throw new Error("All models failed");
+
+  return parseJSON(text);
+
+} catch (error) {
+  console.error("Error generating with Gemini:", error);
+  return selectedLanguage === "nepali"
+    ? { civilian: "कुकुर", imposter: "बिरालो" }
+    : { civilian: "Dog", imposter: "Cat" };
+}
   }
   
   function parseJSON(text: string): WordPair {
@@ -724,18 +752,6 @@ Respond in JSON format:
           <!-- Main Content Area -->
           <div class="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl lg:rounded-2xl p-4 lg:p-8 flex flex-col justify-center order-1 lg:order-2 min-h-0">
             
-            <!-- Player Display -->
-            <div class="text-center mb-4 lg:mb-8">
-              <div class="w-16 h-16 lg:w-24 lg:h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl lg:rounded-2xl flex items-center justify-center text-xl lg:text-3xl font-black text-white mx-auto mb-3 lg:mb-4 shadow-2xl">
-                {currentPlayerIndex + 1}
-              </div>
-              <h2 class="text-2xl lg:text-4xl font-black text-white mb-1 lg:mb-2">
-                {currentPlayer?.name || `Player ${currentPlayerIndex + 1}`}
-              </h2>
-              <p class="text-sm lg:text-lg text-slate-300">
-                {wordRevealed ? 'Remember your word!' : 'Ready for your secret word?'}
-              </p>
-            </div>
 
             <!-- Word Display -->
             <div class="flex-1 flex items-center justify-center min-h-0">
@@ -787,14 +803,12 @@ Respond in JSON format:
                     </div>
                   {:else}
                     <!-- Word Only Display -->
-                    <div class="bg-white/10 border border-blue-400/30 rounded-xl lg:rounded-2xl p-6 lg:p-8">
                       <!-- <h3 class="text-lg lg:text-2xl font-bold text-blue-400 mb-1 lg:mb-2">Your Secret Word</h3>
                       <p class="text-sm lg:text-base text-slate-300 mb-4 lg:mb-6">Keep this secret!</p> -->
                       <div class="bg-white/20 rounded-lg lg:rounded-xl p-4 lg:p-6">
                         <div class="text-2xl lg:text-4xl font-black text-white">
                           {currentPlayer?.word}
                         </div>
-                      </div>
                     </div>
                   {/if}
                 </div>
@@ -818,23 +832,6 @@ Respond in JSON format:
             </div>
 
             <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 mb-6">
-              <div class="grid grid-cols-3 gap-6 mb-8">
-                <div class="bg-white/10 rounded-xl p-4">
-                  <div class="text-3xl mb-2">💬</div>
-                  <div class="font-bold text-white mb-1">Discuss</div>
-                  <div class="text-sm text-slate-400">Share hints about your word</div>
-                </div>
-                <div class="bg-white/10 rounded-xl p-4">
-                  <div class="text-3xl mb-2">🤔</div>
-                  <div class="font-bold text-white mb-1">Analyze</div>
-                  <div class="text-sm text-slate-400">Look for suspicious behavior</div>
-                </div>
-                <div class="bg-white/10 rounded-xl p-4">
-                  <div class="text-3xl mb-2">🎯</div>
-                  <div class="font-bold text-white mb-1">Vote</div>
-                  <div class="text-sm text-slate-400">Eliminate the spy</div>
-                </div>
-              </div>
 
               <div class="flex gap-4">
                 <button
@@ -847,8 +844,8 @@ Respond in JSON format:
                 {#if savedPlayerNames.length > 0}
                   <button
                     on:click={restartWithSamePlayers}
-                    disabled={isGeneratingWords}
                     class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:opacity-50 text-white font-bold py-4 px-6 rounded-xl transition-all hover:scale-105"
+                    disabled={isGeneratingWords}
                   >
                     {#if isGeneratingWords}
                       <div class="flex items-center justify-center gap-2">
@@ -860,15 +857,15 @@ Respond in JSON format:
                     {/if}
                   </button>
                 {/if}
+                <button
+                  on:click={resetGame}
+                  class="bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all"
+                >
+                  New Game
+                </button>
               </div>
             </div>
 
-            <button
-              on:click={resetGame}
-              class="bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all"
-            >
-              New Game
-            </button>
           </div>
         </div>
       {/if}
