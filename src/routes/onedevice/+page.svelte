@@ -398,7 +398,7 @@ Respond in JSON format:
           <!-- Header/Left Panel -->
           <div class="lg:w-1/3 flex flex-col justify-center space-y-4 lg:space-y-6">
             <div class="text-center space-y-2 lg:space-y-4">
-              <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-white">Spy Hunt</h1>
+              <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-white"> Offline Mode</h1>
               <p class="text-sm md:text-base lg:text-lg text-slate-300">Find the imposter among you</p>
             </div>
             
@@ -788,9 +788,8 @@ Respond in JSON format:
                   {:else}
                     <!-- Word Only Display -->
                     <div class="bg-white/10 border border-blue-400/30 rounded-xl lg:rounded-2xl p-6 lg:p-8">
-                      <div class="text-3xl lg:text-4xl mb-3 lg:mb-4">🎯</div>
-                      <h3 class="text-lg lg:text-2xl font-bold text-blue-400 mb-1 lg:mb-2">Your Secret Word</h3>
-                      <p class="text-sm lg:text-base text-slate-300 mb-4 lg:mb-6">Keep this secret!</p>
+                      <!-- <h3 class="text-lg lg:text-2xl font-bold text-blue-400 mb-1 lg:mb-2">Your Secret Word</h3>
+                      <p class="text-sm lg:text-base text-slate-300 mb-4 lg:mb-6">Keep this secret!</p> -->
                       <div class="bg-white/20 rounded-lg lg:rounded-xl p-4 lg:p-6">
                         <div class="text-2xl lg:text-4xl font-black text-white">
                           {currentPlayer?.word}
@@ -876,23 +875,21 @@ Respond in JSON format:
 
       <!-- Reveal Screen -->
       {#if gameState === 'reveal'}
-        <div class="max-w-5xl mx-auto py-32">
-          <div class="text-center mb-10">
-            <div class="text-8xl mb-8 animate-bounce">🎉</div>
-            <h2 class="text-3xl font-black text-white mb-6">Game Results</h2>
-            <p class="text-2xl text-slate-300">The mystery has been solved!</p>
+        <div class="max-w-4xl mx-auto lg:py-32">
+          <div class="text-center mb-4">
+            <h2 class="text-2xl font-black text-white mb-6">Game Results</h2>
           </div>
 
           <div class="space-y-3 mb-10">
             <!-- Spy Result -->
             <div class="relative group">
               <div class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-pink-500/20 rounded-3xl blur-2xl opacity-75"></div>
-              <div class="relative bg-white/5 backdrop-blur-xl border border-red-400/20 rounded-3xl p-10 text-center transform hover:scale-105 transition-transform">
+              <div class="relative bg-white/5 backdrop-blur-xl border border-red-400/20 rounded-3xl p-4 text-center transform hover:scale-105 transition-transform">
                 <!-- <div class="text-8xl mb-6">🕵️</div> -->
-                <h3 class="text-3xl font-bold text-red-400 mb-4">{imposter?.name}</h3>
-                <p class="text-xl text-red-300 mb-6">was the SPY!</p>
+                <h3 class="text-2xl font-bold text-red-400 mb-4">{imposter?.name}</h3>
+                <p class="text-lg text-red-300 mb-6">was the SPY!</p>
                 <div class="inline-block bg-red-500/20 border border-red-400/30 rounded-2xl px-8 py-4">
-                  <span class="text-red-200 font-bold text-xl">Word: {gameData?.imposterWord}</span>
+                  <span class="text-red-200 font-bold text-lg">Word: {gameData?.imposterWord}</span>
                 </div>
               </div>
             </div>
@@ -901,12 +898,12 @@ Respond in JSON format:
             {#if dumbPlayer}
               <div class="relative group">
                 <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-3xl blur-2xl opacity-75"></div>
-                <div class="relative bg-white/5 backdrop-blur-xl border border-yellow-400/20 rounded-3xl p-10 text-center transform hover:scale-105 transition-transform">
+                <div class="relative bg-white/5 backdrop-blur-xl border border-yellow-400/20 rounded-3xl p-4 text-center transform hover:scale-105 transition-transform">
                   <!-- <div class="text-8xl mb-6">🤔</div> -->
-                  <h3 class="text-3xl font-bold text-yellow-400 mb-4">{dumbPlayer?.name}</h3>
-                  <p class="text-xl text-yellow-300 mb-6">was the MYSTERY!</p>
-                  <div class="inline-block bg-yellow-500/20 border border-yellow-400/30 rounded-2xl px-8 py-4">
-                    <span class="text-yellow-200 font-bold text-xl">Had no word!</span>
+                  <h3 class="text-2xl font-bold text-yellow-400 mb-4">{dumbPlayer?.name}</h3>
+                  <p class="text-lg text-yellow-300 mb-6">was the MYSTERY!</p>
+                  <div class="inline-block bg-yellow-500/20 border border-yellow-400/30 rounded-2xl px-4 py-2">
+                    <span class="text-yellow-200 font-bold text-lg">Had no word!</span>
                   </div>
                 </div>
               </div>
@@ -917,16 +914,16 @@ Respond in JSON format:
               <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-3xl blur-2xl opacity-75"></div>
               <div class="relative bg-white/5 backdrop-blur-xl border border-green-400/20 rounded-3xl p-10 text-center">
                 <!-- <div class="text-6xl mb-6">👥</div> -->
-                <h3 class="text-3xl font-bold text-green-400 mb-4">Civilian Word</h3>
-                <div class="text-xl font-black text-white">
+                <h3 class="text-xl font-bold text-green-400 mb-4">Civilian Word</h3>
+                <div class="text-lg font-black text-white">
                   {gameData?.civilianWord}
                 </div>
               </div>
             </div>
           </div>
-
+          
           <!-- Actions -->
-          <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-10">
+          <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-4">
             <div class="flex flex-col sm:flex-row gap-6">
               {#if savedPlayerNames.length > 0}
                 <button

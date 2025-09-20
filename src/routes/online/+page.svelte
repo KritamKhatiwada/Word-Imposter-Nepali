@@ -1012,7 +1012,7 @@
 
     <!-- Browse Public Rooms Screen -->
     {#if gameState === 'browse'}
-        <div class="container mx-auto px-4 py-8 md:py-16">
+        <div class="container mx-auto px-4 py-8 lg:pt-32 md:py-16">
             <div class="max-w-lg mx-auto">
                 
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
@@ -1131,147 +1131,153 @@
         </div>
     {/if}
 
-    <!-- Create Room Screen -->
+<!-- Create Room Screen -->
     {#if gameState === 'create'}
-        <div class="container mx-auto px-4 py-8 md:py-16">
-            <div class="max-w-md mx-auto">
+        <div class="container mx-auto px-6 py-8 lg:pt-30 min-h-screen flex items-center justify-center">
+            <div class="max-w-4xl w-full">
                 
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
-                            <div class="w-8 h-8 text-white">{@html PlusIcon}</div>
-                        </div>
-                        <h2 class="text-2xl font-black text-gray-900 mb-2">Create Room</h2>
-                        <p class="text-gray-600 text-sm">Start a new game and invite friends</p>
+                <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12">
+                    <div class="text-center mb-8">
+    
+                        <h2 class="text-4xl font-black text-gray-900 mb-3">Create Room</h2>
+                        <p class="text-gray-600 text-lg">Start a new game and invite friends</p>
                     </div>
                     
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Your Name</label>
-                            <input
-                                type="text"
-                                bind:value={playerName}
-                                placeholder="Enter your name..."
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
-                            />
-                        </div>
-                        
-                        <!-- Room Visibility -->
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-3">Room Type</label>
-                            <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
-                                <button
-                                    type="button"
-                                    on:click={() => isPublicRoom = true}
-                                    class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer space-x-2
-                                        {isPublicRoom ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
-                                >
-                                    <div class="w-4 h-4">{@html UnlockIcon}</div>
-                                    <span>Public</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    on:click={() => isPublicRoom = false}
-                                    class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer space-x-2
-                                        {!isPublicRoom ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
-                                >
-                                    <div class="w-4 h-4">{@html LockIcon}</div>
-                                    <span>Private</span>
-                                </button>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">
-                                {isPublicRoom ? 'Anyone can find and join your room' : 'Only people with the code can join'}
-                            </p>
-                        </div>
-                        
-                        <!-- Room Name (for public rooms) -->
-                        {#if isPublicRoom}
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left Column -->
+                        <div class="space-y-6">
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Room Name</label>
+                                <label class="block text-base font-bold text-gray-700 mb-3">Your Name</label>
                                 <input
                                     type="text"
-                                    bind:value={roomName}
-                                    placeholder="Give your room a name..."
-                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
+                                    bind:value={playerName}
+                                    placeholder="Enter your name..."
+                                    class="w-full p-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
                                 />
                             </div>
-                        {/if}
-                        
-                        <!-- Max Players -->
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Max Players</label>
-                            <select
-                                bind:value={maxPlayers}
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
-                            >
-                                <option value={4}>4 players</option>
-                                <option value={6}>6 players</option>
-                                <option value={8}>8 players</option>
-                                <option value={10}>10 players</option>
-                                <option value={12}>12 players</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Language Selection -->
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-3">🌍 Language</label>
-                            <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-xl">
-                                <button
-                                    type="button"
-                                    on:click={() => selectedLanguage = 'english'}
-                                    class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer
-                                        {selectedLanguage === 'english' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
-                                >
-                                    English
-                                </button>
-                                <button
-                                    type="button"
-                                    on:click={() => selectedLanguage = 'nepali'}
-                                    class="flex items-center justify-center py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 hover:cursor-pointer
-                                        {selectedLanguage === 'nepali' ? 'bg-white shadow-lg text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
-                                >
-                                    नेपाली
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Game Options -->
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                <div>
-                                    <div class="font-bold text-gray-800 text-sm">🤔 Add Mystery Player</div>
-                                    <div class="text-xs text-gray-500">Someone gets no word at all</div>
+                            
+                            <!-- Room Visibility -->
+                            <div>
+                                <label class="block text-base font-bold text-gray-700 mb-4">Room Type</label>
+                                <div class="grid grid-cols-2 gap-3 p-2 bg-gray-100 rounded-2xl">
+                                    <button
+                                        type="button"
+                                        on:click={() => isPublicRoom = true}
+                                        class="flex items-center justify-center py-4 px-6 rounded-xl text-base font-semibold transition-all duration-200 hover:cursor-pointer space-x-3
+                                            {isPublicRoom ? 'bg-white shadow-xl text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+                                    >
+                                        <div class="w-5 h-5">{@html UnlockIcon}</div>
+                                        <span>Public</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        on:click={() => isPublicRoom = false}
+                                        class="flex items-center justify-center py-4 px-6 rounded-xl text-base font-semibold transition-all duration-200 hover:cursor-pointer space-x-3
+                                            {!isPublicRoom ? 'bg-white shadow-xl text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+                                    >
+                                        <div class="w-5 h-5">{@html LockIcon}</div>
+                                        <span>Private</span>
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    on:click={() => includeDumbRole = !includeDumbRole}
-                                    class="relative w-14 h-8 rounded-full transition-all duration-300 focus:outline-none hover:scale-110 hover:cursor-pointer
-                                        {includeDumbRole ? 'bg-green-500 shadow-lg' : 'bg-gray-300'}"
+                                <p class="text-sm text-gray-500 mt-2">
+                                    {isPublicRoom ? 'Anyone can find and join your room' : 'Only people with the code can join'}
+                                </p>
+                            </div>
+                            
+                            <!-- Room Name (for public rooms) -->
+                            {#if isPublicRoom}
+                                <div>
+                                    <label class="block text-base font-bold text-gray-700 mb-3">Room Name</label>
+                                    <input
+                                        type="text"
+                                        bind:value={roomName}
+                                        placeholder="Give your room a name..."
+                                        class="w-full p-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
+                                    />
+                                </div>
+                            {/if}
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-6">
+                            <!-- Max Players -->
+                            <div>
+                                <label class="block text-base font-bold text-gray-700 mb-3">Max Players</label>
+                                <select
+                                    bind:value={maxPlayers}
+                                    class="w-full p-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
                                 >
-                                    <div class="absolute w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 top-1 flex items-center justify-center
-                                        {includeDumbRole ? 'translate-x-7' : 'translate-x-1'}">
-                                        {#if includeDumbRole}
-                                            <div class="text-green-500 text-xs font-bold">?</div>
-                                        {/if}
+                                    <option value={4}>4 players</option>
+                                    <option value={6}>6 players</option>
+                                    <option value={8}>8 players</option>
+                                    <option value={10}>10 players</option>
+                                    <option value={12}>12 players</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Language Selection -->
+                            <div>
+                                <label class="block text-base font-bold text-gray-700 mb-4">🌍 Language</label>
+                                <div class="grid grid-cols-2 gap-3 p-2 bg-gray-100 rounded-2xl">
+                                    <button
+                                        type="button"
+                                        on:click={() => selectedLanguage = 'english'}
+                                        class="flex items-center justify-center py-4 px-6 rounded-xl text-base font-semibold transition-all duration-200 hover:cursor-pointer
+                                            {selectedLanguage === 'english' ? 'bg-white shadow-xl text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+                                    >
+                                        English
+                                    </button>
+                                    <button
+                                        type="button"
+                                        on:click={() => selectedLanguage = 'nepali'}
+                                        class="flex items-center justify-center py-4 px-6 rounded-xl text-base font-semibold transition-all duration-200 hover:cursor-pointer
+                                            {selectedLanguage === 'nepali' ? 'bg-white shadow-xl text-gray-900 border-2 border-gray-200' : 'text-gray-600 hover:text-gray-800'}"
+                                    >
+                                        नेपाली
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Game Options -->
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <div>
+                                        <div class="font-bold text-gray-800 text-base">🤔 Add Mystery Player</div>
+                                        <div class="text-sm text-gray-500">Someone gets no word at all</div>
                                     </div>
-                                </button>
+                                    <button
+                                        type="button"
+                                        on:click={() => includeDumbRole = !includeDumbRole}
+                                        class="relative w-16 h-9 rounded-full transition-all duration-300 focus:outline-none hover:scale-110 hover:cursor-pointer
+                                            {includeDumbRole ? 'bg-green-500 shadow-lg' : 'bg-gray-300'}"
+                                    >
+                                        <div class="absolute w-7 h-7 bg-white rounded-full shadow-sm transition-transform duration-300 top-1 flex items-center justify-center
+                                            {includeDumbRole ? 'translate-x-8' : 'translate-x-1'}">
+                                            {#if includeDumbRole}
+                                                <div class="text-green-500 text-sm font-bold">?</div>
+                                            {/if}
+                                        </div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        
+                    </div>
+                    
+                    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <button
                             on:click={createRoom}
-                            class="w-full bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-black py-5 px-6 rounded-xl transition-all duration-200 shadow-xl hover:shadow-green-500/25 flex items-center justify-center space-x-3 hover:scale-105 transform hover:cursor-pointer"
+                            class="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-black py-6 px-8 rounded-2xl transition-all duration-200 shadow-2xl hover:shadow-green-500/30 flex items-center justify-center space-x-4 hover:scale-105 transform hover:cursor-pointer"
                         >
-                            <div class="w-6 h-6">{@html PlusIcon}</div>
-                            <span class="text-lg">CREATE ROOM</span>
+                            <div class="w-7 h-7">{@html PlusIcon}</div>
+                            <span class="text-xl">CREATE ROOM</span>
                         </button>
 
                         <button
                             on:click={backToHome}
-                            class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-4 rounded-xl transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-2 hover:cursor-pointer"
+                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-6 px-6 rounded-2xl transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-3 hover:cursor-pointer"
                         >
-                            <div class="w-5 h-5">{@html ArrowLeftIcon}</div>
-                            <span>Back</span>
+                            <div class="w-6 h-6">{@html ArrowLeftIcon}</div>
+                            <span class="text-lg">Back</span>
                         </button>
                     </div>
                 </div>
@@ -1281,61 +1287,62 @@
 
     <!-- Join Room Screen -->
     {#if gameState === 'join'}
-        <div class="container mx-auto px-4 py-8 md:py-16">
-            <div class="max-w-md mx-auto">
+        <div class="container mx-auto px-6 py-8 lg:py-32 min-h-screen flex items-center justify-center">
+            <div class="max-w-2xl w-full">
                 
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
-                            <div class="w-8 h-8 text-white">{@html LoginIcon}</div>
+                <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                            <div class="w-10 h-10 text-white">{@html LoginIcon}</div>
                         </div>
-                        <h2 class="text-2xl font-black text-gray-900 mb-2">Join by Code</h2>
-                        <p class="text-gray-600 text-sm">Enter a private room code to join</p>
+                        <h2 class="text-4xl font-black text-gray-900 mb-3">Join by Code</h2>
+                        <p class="text-gray-600 text-lg">Enter a private room code to join</p>
                     </div>
                     
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Your Name</label>
+                            <label class="block text-base font-bold text-gray-700 mb-3">Your Name</label>
                             <input
                                 type="text"
                                 bind:value={playerName}
                                 placeholder="Enter your name..."
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
+                                class="w-full p-5 text-lg border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100"
                             />
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Room Code</label>
+                            <label class="block text-base font-bold text-gray-700 mb-3">Room Code</label>
                             <input
                                 type="text"
                                 bind:value={joinRoomCode}
                                 placeholder="Enter 6-letter code..."
-                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100 uppercase text-center text-2xl font-black"
+                                class="w-full p-6 border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:outline-none transition-all bg-gray-50 hover:bg-gray-100 uppercase text-center text-3xl font-black tracking-widest"
                                 maxlength="6"
                             />
                         </div>
                         
-                        <button
-                            on:click={joinRoom}
-                            class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-black py-5 px-6 rounded-xl transition-all duration-200 shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-3 hover:scale-105 transform hover:cursor-pointer"
-                        >
-                            <div class="w-6 h-6">{@html LoginIcon}</div>
-                            <span class="text-lg">JOIN ROOM</span>
-                        </button>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                            <button
+                                on:click={joinRoom}
+                                class="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-black py-6 px-8 rounded-2xl transition-all duration-200 shadow-2xl hover:shadow-blue-500/30 flex items-center justify-center space-x-4 hover:scale-105 transform hover:cursor-pointer"
+                            >
+                                <div class="w-7 h-7">{@html LoginIcon}</div>
+                                <span class="text-xl">JOIN ROOM</span>
+                            </button>
 
-                        <button
-                            on:click={backToHome}
-                            class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-4 rounded-xl transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-2 hover:cursor-pointer"
-                        >
-                            <div class="w-5 h-5">{@html ArrowLeftIcon}</div>
-                            <span>Back</span>
-                        </button>
+                            <button
+                                on:click={backToHome}
+                                class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-6 px-6 rounded-2xl transition-all duration-200 hover:scale-105 flex items-center justify-center space-x-3 hover:cursor-pointer"
+                            >
+                                <div class="w-6 h-6">{@html ArrowLeftIcon}</div>
+                                <span class="text-lg">Back</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     {/if}
-
     <!-- Lobby Screen -->
     {#if gameState === 'lobby'}
         <div class="container mx-auto px-4 py-8 md:py-16">

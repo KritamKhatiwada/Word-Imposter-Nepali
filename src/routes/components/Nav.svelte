@@ -42,7 +42,7 @@
             <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-purple-400 rounded-full"></div>
           {/if}
         </div>
-        <span class="text-xs font-medium">One Device</span>
+        <span class="text-xs font-medium">Offline</span>
         
         <!-- Hover glow effect -->
         <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity -z-10"></div>
