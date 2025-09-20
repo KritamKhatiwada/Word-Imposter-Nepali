@@ -25,7 +25,7 @@
 	let usedThemes: Set<string> = new Set();
 
 	let gameState: 'home' | 'setup' | 'game' | 'complete' | 'reveal' = 'home';
-	let numPlayers: number = 4;
+	let numPlayers: number = 3;
 	let playerNames: string[] = [''];
 	let savedPlayerNames: string[] = [];
 	let currentPlayerIndex: number = 0;

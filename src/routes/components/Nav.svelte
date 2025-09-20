@@ -64,6 +64,22 @@
         <!-- Hover glow effect -->
         <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity -z-10"></div>
       </a>
+      <a href="/team-battle" 
+         class="nav-link group relative flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-300 hover:bg-white/10"
+         class:active={isActive('/team-battle')}>
+        <div class="relative">
+          <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+          </svg>
+          {#if isActive('/team-battle')}
+            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-purple-400 rounded-full"></div>
+          {/if}
+        </div>
+        <span class="text-xs font-medium">Team</span>
+        
+        <!-- Hover glow effect -->
+        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity -z-10"></div>
+      </a>
     </div>
   </div>
 
